@@ -1,8 +1,18 @@
 #lang racket
 
-(provide make-road
+(provide find-car
+         make-road
          make-car
-         find-car)
+         update-road
+         update-car-list
+         display-road)
+
+; find a car's location on the road
+(define (find-car id road)
+  (let ([result (filter (lambda (x) (eq? (car x) id)) road)])
+    (if [empty? result]
+        #f
+        (car result))))
 
 ; call each car in car-list to get its id
 ; assign positions
@@ -10,7 +20,7 @@
   (let ([ids (map (lambda (x) (car (x '()))) car-list)])
     (define (random-pos new-road)
       (let ([new-pos (list (random 2) (random 100))])
-        (if [not (member new-pos new-road)]
+        (if [not (member new-pos (map cdr new-road))]
             new-pos
             (random-pos new-road))))
     (define (new-road-iter ids-left road-so-far)
@@ -29,9 +39,14 @@
           (list id 0 0)
           (list id (cadr current) (+ (caddr current) speed))))))
 
-; find a car's location on the road
-(define (find-car id road)
-  (let ([result (filter (lambda (x) (eq? (car x) id)) road)])
-    (if [empty? result]
-        #f
-        (car result))))
+; call all cars and create a new road
+(define (update-road car-list road)
+  road)
+
+; remove out-of-scope cars
+(define (update-car-list car-list road)
+  car-list)
+
+; pretty-print the road
+(define (display-road road)
+  (void))
