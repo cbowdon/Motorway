@@ -1,0 +1,61 @@
+Project summary:
+
+This code will simulate a motorway. Goal is to simulate different driving behaviour and observe which behaviour causes the most crashes.
+
+FUNCTIONAL SPEC
+
+A functional specification to get my head clear on what I'm trying to achieve here.
+
+User interface:
+
+The user chooses the number and behavioural types of car for the simulation. The user presses 'go'. A view of the road appears that is updated every second. The user gets popcorn and waits for a crash.
+
+This simulation may in future be run in a browser or even on a mobile device. But for now the only goal is to have it run in Racket with an ASCII road. Because small projects get finished.
+
+Car selection:
+
+There is a preset choice of car types. Each type has a different id and behaviour, e.g.:
+
+- 'Alzina' drives in the middle lane and does not overtake
+- 'Bolt' advances faster than other cars and overtakes with less space
+
+Car ids will not be brand names, to be fair to the one decent Audi driver out there. Graphically the car is represented by a label and number, e.g. 'AL1'.
+
+The user adds cars by type, e.g.:
+
+(add 'bolt 3) to add three bolts
+
+Motorway:
+
+The motorway is three lanes wide and several car-lengths long. It is represented as ASCII lines and spaces. The user interacts with the motorway by pressing 'go'.
+
+
+TECHNICAL SPEC
+i.e. implementation details
+i.e. subject to change
+
+Cars will be procedures that are created with behavioural parameters (e.g. overtake-distance) and an id. The returned procedure will take the road data-structure as input. It will read its current position in the road relative to other cars and return a new position (and its id). 
+
+e.g.
+(make-car id overtake-dist speed moves-in?)
+-> (move-car current-road) 
+-> (id x y)
+
+There will be a (possibly mutable) list of all the active cars.
+
+The road will be a data-structure holding ids and coordinates. 
+
+e.g. ('road (id1 x1 y1) (id2 x2 y2))
+
+There will be a method to call each car in the list and compose a new road from their output, and a related method that produces a new list in case of cars moving out of scope. There will be a method to check for crashes and a method to display the road. A method to initialize the road may be necessary.
+
+e.g. 
+(make-road car-list)
+(update-road car-list current-road) -> new-road
+(update-car-list car-list current-road) -> new-car-list
+(collision? road) -> boolean
+(display-road road) -> text
+
+
+
+
