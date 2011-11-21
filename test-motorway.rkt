@@ -5,8 +5,24 @@
 
 (test-case
  "Find a car on a road"
- (let ([road (list '(skoda 2 60) '(lorry 1 2) '(jag 1 35))])
-   (check-equal? '(jag 1 35) (find-car 'jag road))))
+ (let* ([road (list '(skoda 1 60) '(mini 0 59) '(lorry 0 35) '(jag 0 10) '(astra 1 2))]
+        [the-jag (find-car 'jag road)]
+        [the-astra (find-car 'astra road)]
+        [the-skoda (find-car 'skoda road)])
+   ; find our car
+   (check-equal? the-jag '(jag 0 10))
+   ; find cars ahead of us
+   (check-equal? (find-ahead the-jag road) (list '(lorry 0 35) '(mini 0 59)))
+   ; one car in the adjacent lane to the jaaaaag
+   (check-equal? (find-adjacent the-jag 'out road) (list '(astra 1 2)))
+   ; no cars adjacent to the astra 
+   (check-equal? (find-adjacent the-astra 'out road) '())
+   (check-equal? (find-adjacent the-astra 'in road) '())
+   ; a mini is inside to the skoda
+   (check-equal? (find-adjacent the-skoda 'in road) (list '(mini 0 59) '(lorry 0 35) '(jag 0 10)))
+   ; the other adjacent lane is not okay
+   (check-false (find-adjacent the-jag 'in road))
+   ))
 
 (test-case
  "Making a car"
@@ -16,8 +32,8 @@
    (check-true (procedure? jag))
    ; procedure responds to input by producing id & coords
    (check-equal? (length (jag road)) 3)
-   (check-eq? (car (jag road)) 'jag)
-   (check-equal? (map number? (cdr (jag road))) (list #t #t))))
+   (check-eq? (first (jag road)) 'jag)
+   (check-equal? (map number? (rest (jag road))) (list #t #t))))
 
 (test-case
  "Making a road - check the randomizer by looping"
@@ -34,9 +50,9 @@
        (check-equal? (map car road) '(jag skoda lorry))
        ; no duplicate positions
        (check-equal? (length road)
-                     (length (remove-duplicates (map cdr road)))))
+                     (length (remove-duplicates (map rest road)))))
      (the-test (- count 1))))
- (the-test 10000))
+ (the-test 1000))
 
 (test-case
  "Cars normally drive in a straight line"
@@ -48,13 +64,13 @@
         ; init road
         [road (make-road car-list)]
         ; where's the jag start?
-        [jag-lane (list-ref (find-car 'jag road) 1)]       
-        [jag-pos (list-ref (find-car 'jag road) 2)])
+        [jag-lane (second (find-car 'jag road))]       
+        [jag-pos (third (find-car 'jag road))])
    ; is it in the same lane?
-   (check-equal? jag-lane (cadr (jag road)))
+   (check-equal? jag-lane (second (jag road)))
    ; has it moved forward?
-   (check-true (> (caddr (jag road)) jag-pos))
-   (check-equal? (caddr (jag road)) (+ jag-pos speed))))
+   (check-true (> (third (jag road)) jag-pos))
+   (check-equal? (third (jag road)) (+ jag-pos speed))))
 
 (test-case
  "Update road... updates the road"
@@ -78,9 +94,9 @@
         [r2 (find-car 'rolls updated-road)])
    ; no car in the same place
    (for-each (lambda (x y) (check-not-equal? x y)) road updated-road)
-   ; new pos = old pos + speed
-   (check-equal? (caddr j2) (+ (caddr j1) jag-speed))
-   (check-equal? (caddr r2) (+ (caddr r1) rolls-speed))
+   ; new pos = old pos + speed (if no cars ahead)
+   (check-equal? (third j2) (+ (third j1) jag-speed))
+   (check-equal? (third r2) (+ (third r1) rolls-speed))
    ))
 
 
