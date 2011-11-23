@@ -14,14 +14,16 @@
    ; find cars ahead of us
    (check-equal? (find-ahead the-jag road) (list '(lorry 0 35) '(mini 0 59)))
    ; one car in the adjacent lane to the jaaaaag
-   (check-equal? (find-adjacent the-jag 'out road) (list '(astra 1 2)))
+   (check-equal? (find-adjacent the-jag 'out 'behind road) (list '(astra 1 2)))
    ; no cars adjacent to the astra 
-   (check-equal? (find-adjacent the-astra 'out road) '())
-   (check-equal? (find-adjacent the-astra 'in road) '())
+   (check-equal? (find-adjacent the-astra 'out 'behind road) '())
+   (check-equal? (find-adjacent the-astra 'in 'behind road) '())
    ; a mini is inside to the skoda
-   (check-equal? (find-adjacent the-skoda 'in road) (list '(mini 0 59) '(lorry 0 35) '(jag 0 10)))
+   (check-equal? (find-adjacent the-skoda 'in 'behind road) (list '(mini 0 59) '(lorry 0 35) '(jag 0 10)))
    ; the other adjacent lane is not okay
-   (check-false (find-adjacent the-jag 'in road))
+   (check-false (find-adjacent the-jag 'in 'behind road))
+   ;there are cars adjacent but ahead of the jag
+   (check-equal? (find-adjacent the-jag 'out 'ahead road) (list '(skoda 1 60)))
    ))
 
 (test-case
@@ -92,12 +94,37 @@
         ; new car positions
         [j2 (find-car 'jag updated-road)]
         [r2 (find-car 'rolls updated-road)])
-   ; no car in the same place
-   (for-each (lambda (x y) (check-not-equal? x y)) road updated-road)
-   ; new pos = old pos + speed (if no cars ahead)
-   (check-equal? (third j2) (+ (third j1) jag-speed))
-   (check-equal? (third r2) (+ (third r1) rolls-speed))
+   ; cars in same order
+   (for-each (lambda (x y) (check-equal? (first x) (first y))) road updated-road)
+   ; cars in lane +/- 1
+   (for-each (lambda (x y) (check-true (> 1 (abs (- (second x) (second y)))))) road updated-road)
+   ; cars all advanced
+   (for-each (lambda (x y) (check-true (< (third x) (third y)))) road updated-road)))
+
+(test-case
+ "Recognise when to overtake?"
+ (let* ([road (list '(astra 1 60) '(reliant 1 38) '(skoda 1 22) '(mini 1 61) '(lorry 0 35) '(jag 0 33))]
+        [the-jag (find-car 'jag road)]
+        [the-astra (find-car 'astra road)]
+        [the-skoda (find-car 'skoda road)]
+        [the-lorry (find-car 'lorry road)])
+   ; jag should wish to overtake lorry
+   (check-true (should-overtake? the-jag 7 road))
+   ; skoda has no desire to overtake astra
+   (check-false (should-overtake? the-skoda 6 road))
+   ; no one for lorry to overtake
+   (check-false (should-overtake? the-lorry 5 road))
+   ; jag cannot overtake the lorry because of the skoda
+   (check-false (can-overtake? the-jag 7 road))
+   ; astra is free to overtake the mini
+   (check-true (can-overtake? the-astra 7 road))
+   ; skoda can overtake (though he doesn't want to)
+   (check-true (can-overtake? the-skoda 5 road)) 
+   ; lorry cannot overtake (and doesn't want to)
+   (check-false (can-overtake? the-lorry 5 road))
    ))
+  
+ 
 
 
 

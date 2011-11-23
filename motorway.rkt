@@ -7,7 +7,9 @@
          make-car
          update-road
          update-car-list
-         display-road)
+         display-road
+         should-overtake?
+         can-overtake?)
 
 ; find a car's location on the road
 (define (find-car id road)
@@ -27,15 +29,29 @@
 (define (find-ahead this-car road)
   (find-closest (second this-car) < this-car road))
 
-; get cars behind in adjacent lane, order by proximity
-(define (find-adjacent this-car next-lane road)  
+; get cars in adjacent lane, either ahead or behind, order by proximity
+(define (find-adjacent this-car next-lane direction road)  
   (let* ([op (cond [(eq? next-lane 'in) -]
                    [(eq? next-lane 'out) +]
-                   [else (error "That's not a lane!")])]
+                   [else (error "That's not a lane:" next-lane)])]
+         [pr (cond [(eq? direction 'ahead) <]
+                   [(eq? direction 'behind) >]
+                   [else (error "That's not a direction:" direction)])]
          [target-lane (op (second this-car) 1)])
     (if [or (< target-lane 0) (> target-lane 2)]
         #f
-        (find-closest target-lane > this-car road))))
+        (find-closest target-lane pr this-car road))))
+
+; make a car
+; speed is steps it will move in one turn
+; overtake-distance  ...
+; changes-lane ...
+(define (make-car id speed overtake-distance moves-in)
+  (lambda (road) 
+    (let ([current (find-car id road)])
+      (if [not current]
+          (list id 0 0)
+          (list id (second current) (+ (third current) speed))))))
 
 ; call each car in car-list to get its id
 ; assign positions
@@ -51,25 +67,34 @@
             [else (new-road-iter (rest ids-left) (cons (cons (first ids-left) (random-pos road-so-far)) road-so-far))]))    
     (reverse (new-road-iter ids '()))))
 
-; make a car
-; speed is steps it will move in one turn
-; overtake-distance  ...
-; changes-lane ...
-(define (make-car id speed overtake-distance moves-in)
-  (lambda (road) 
-    (let ([current (find-car id road)])
-      (if [not current]
-          (list id 0 0)
-          (list id (second current) (+ (third current) speed))))))
-
-; call all cars and create a new road
-(define (update-road car-list road)
-  road)
-
 ; remove out-of-scope cars
 (define (update-car-list car-list road)
   car-list)
 
+; call all cars and create a new road
+(define (update-road car-list road)
+  (map (lambda (x) (x road)) car-list))
+
 ; pretty-print the road
 (define (display-road road)
   (void))
+
+; decide if overtaking is necessary
+; condition: dist to car ahead < speed
+(define (should-overtake? this-car speed road)
+  (let ([cars-ahead (find-ahead this-car road)])
+    (and (not (empty? cars-ahead)) 
+         (< (third (first cars-ahead)) (+ (third this-car) speed)))))
+
+; decide if overtaking is safe
+; condition: adjacent-lane car dist is > 2 x speed (if behind) and < speed (if ahead)
+(define (can-overtake? this-car speed road)
+  (let ([cars-adj-ahead (find-adjacent this-car 'out 'ahead road)]
+        [cars-adj-behind (find-adjacent this-car 'out 'behind road)])
+    (and
+     (or (empty? cars-adj-behind)
+         (> (- (third this-car) (third (first cars-adj-behind))) (* 2 speed)))
+     (or (empty? cars-adj-ahead)
+         (> (- (third (first cars-adj-ahead)) (third this-car)) speed)))))
+
+
