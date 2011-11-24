@@ -108,6 +108,7 @@
         [the-astra (find-car 'astra road)]
         [the-skoda (find-car 'skoda road)]
         [the-lorry (find-car 'lorry road)])
+   (display-road road)
    ; jag should wish to overtake lorry
    (check-true (should-overtake? the-jag 7 road))
    ; skoda has no desire to overtake astra
@@ -121,8 +122,7 @@
    ; skoda can overtake (though he doesn't want to)
    (check-true (can-overtake? the-skoda 5 road)) 
    ; lorry cannot overtake (and doesn't want to)
-   (check-false (can-overtake? the-lorry 5 road))
-   ))
+   (check-false (can-overtake? the-lorry 5 road))))
   
  
 

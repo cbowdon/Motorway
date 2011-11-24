@@ -75,9 +75,23 @@
 (define (update-road car-list road)
   (map (lambda (x) (x road)) car-list))
 
+(define (get-sorted-lane lane road)
+  (let ([lane-number (cond [(eq? lane 'inside) 0]
+                           [(eq? lane 'middle) 1]
+                           [(eq? lane 'outside) 2])])
+    (sort (filter (lambda (x) (equal? lane-number (second x))) road) (lambda (a b) (< (third a) (third b))))))  
+
 ; pretty-print the road
 (define (display-road road)
-  (void))
+  (let ([text 
+         (list (make-vector 100 '_)
+               (make-vector 100 '_)
+               (make-vector 100 '_))])
+    (for-each (lambda (x) (vector-set! (first text) (third x) (first x))) (get-sorted-lane 'inside road))
+    (for-each (lambda (x) (vector-set! (second text) (third x) (first x))) (get-sorted-lane 'middle road))
+    (for-each (lambda (x) (vector-set! (third text) (third x) (first x))) (get-sorted-lane 'outside road))
+    (vector-map (lambda (x y z) (printf "|\t~a\t|\t~a\t|\t~a\t|\n" x y z)) (first text) (second text) (third text))))
+
 
 ; decide if overtaking is necessary
 ; condition: dist to car ahead < speed
