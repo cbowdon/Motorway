@@ -10,9 +10,10 @@
 ; call each car in car-list to get its id
 ; assign positions
 (define (make-road car-list)
-  (let ([ids (map (lambda (x) (first (x '()))) car-list)])
+  (let ([road-size 20]
+        [ids (map (lambda (x) (first (x '()))) car-list)])
     (define (random-pos new-road)
-      (let ([new-pos (list (random 2) (random 100))])
+      (let ([new-pos (list (random 3) (random (/ road-size 2)))])
         (if [not (member new-pos (map rest new-road))]
             new-pos
             (random-pos new-road))))
@@ -37,13 +38,16 @@
 
 ; pretty-print the road
 (define (display-road road)
-  (let* ([road-size 100]
+  (let* ([road-size 20]
          [text (for/list ([i 3]) (make-vector road-size '_))])          
     (for-each (lambda (x) (vector-set! (first text) (third x) (first x))) (get-sorted-lane 'inside road))
     (for-each (lambda (x) (vector-set! (second text) (third x) (first x))) (get-sorted-lane 'middle road))
     (for-each (lambda (x) (vector-set! (third text) (third x) (first x))) (get-sorted-lane 'outside road))
+    (printf "________________________________________________\n")
+    (printf "|\tinside\t|\tmiddle\t|\toutside\t|\n")
+    (printf "________________________________________________\n")    
     (for ([x (first text)]
           [y (second text)]
           [z (third text)])
-          (printf "|\t~a\t|\t~a\t|\t~a\t|\n" x y z))))
+      (printf "|\t~a\t|\t~a\t|\t~a\t|\n" x y z))))
 

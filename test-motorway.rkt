@@ -73,12 +73,26 @@
    ; cars all advanced
    (for-each (lambda (x y) (check-true (< (third x) (third y)))) road updated-road)))
 
-  
+
+(test-case 
+ "Just damn try it"
+ (define car-list (list (make-car 'audi 0 1 #f)
+                        (make-car 'bmw 1 1 #f)
+                        (make-car 'citroen 2 1 #f)
+                        (make-car 'daimler 3 1 #f)
+                        (make-car 'e-type 4 1 #f)
+                        (make-car 'fiesta 5 1 #f)
+                        (make-car 'golf 6 1 #f)))
  
-
-
-
-
+ (define road (make-road car-list))
+ 
+ (define (road-iter count car-list road)
+   (when [> count 0]
+     (display-road road)
+     (road-iter (- count 1) car-list (update-road car-list road))))
+ 
+ 
+ (road-iter 3 car-list road))
 
 
 

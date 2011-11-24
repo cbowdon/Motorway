@@ -36,12 +36,14 @@
 
 (test-case
  "Recognise when to overtake?"
- (let* ([road (list '(astra 1 60) '(reliant 1 38) '(skoda 1 22) '(mini 1 61) '(lorry 0 35) '(jag 0 33))]
+ (let* ([road (list '(mclaren 2 38) '(astra 1 60) '(reliant 1 38) '(skoda 1 22) '(mini 1 61) '(lorry 0 35) '(jag 0 28))]
         [the-jag (find-car 'jag road)]
         [the-astra (find-car 'astra road)]
         [the-skoda (find-car 'skoda road)]
-        [the-lorry (find-car 'lorry road)])
-   (display-road road)
+        [the-lorry (find-car 'lorry road)]
+        [the-reliant (find-car 'reliant road)]
+        [the-mclaren (find-car 'mclaren road)])
+   ;(display-road road)
    ; jag should wish to overtake lorry
    (check-true (should-overtake? the-jag 7 road))
    ; skoda has no desire to overtake astra
@@ -55,4 +57,44 @@
    ; skoda can overtake (though he doesn't want to)
    (check-true (can-overtake? the-skoda 5 road)) 
    ; lorry cannot overtake (and doesn't want to)
-   (check-false (can-overtake? the-lorry 5 road))))
+   (check-false (can-overtake? the-lorry 5 road))
+   ; reliant cannot overtake
+   (check-false (can-overtake? the-reliant 4 road))
+   ; mclaren cannot overtake
+   (check-false (can-overtake? the-mclaren 10 road))
+   ))
+
+(test-case
+ "Recognise when to move in?"
+ (let* ([speed 1]
+        [road (list '(mclaren 2 10) 
+                    '(astra 1 19) 
+                    '(reliant 1 16) 
+                    '(skoda 1 10) 
+                    '(mini 1 4) 
+                    '(lorry 0 16) 
+                    '(jag 0 4))])
+   ; can move in: astra, skoda
+   (for-each
+    check-true 
+    (map (lambda (x) 
+           (can-move-in? x speed road)) 
+         (filter 
+          (lambda (x) 
+            (or 
+             (eq? 'astra (first x)) 
+             (eq? 'skoda (first x)))) 
+          road)))
+   ; can't move in: everyone else
+   (for-each
+    check-false 
+    (map (lambda (x) 
+           (can-move-in? x speed road)) 
+         (filter 
+          (lambda (x) 
+            (and 
+             (not (eq? 'astra (first x))) 
+             (not (eq? 'skoda (first x))))) 
+          road)))
+   
+   ))

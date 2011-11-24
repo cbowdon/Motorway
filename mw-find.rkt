@@ -27,8 +27,8 @@
   (let* ([op (cond [(eq? next-lane 'in) -]
                    [(eq? next-lane 'out) +]
                    [else (error "That's not a lane:" next-lane)])]
-         [pr (cond [(eq? direction 'ahead) <]
-                   [(eq? direction 'behind) >]
+         [pr (cond [(eq? direction 'ahead) <=]
+                   [(eq? direction 'behind) >=]
                    [else (error "That's not a direction:" direction)])]
          [target-lane (op (second this-car) 1)])
     (if [or (< target-lane 0) (> target-lane 2)]
