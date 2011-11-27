@@ -45,23 +45,23 @@
         [the-mclaren (find-car 'mclaren road)])
    ;(display-road road)
    ; jag should wish to overtake lorry
-   (check-true (should-overtake? the-jag 7 road))
+   (check-true (should-overtake? the-jag road 7))
    ; skoda has no desire to overtake astra
-   (check-false (should-overtake? the-skoda 6 road))
+   (check-false (should-overtake? the-skoda road 6))
    ; no one for lorry to overtake
-   (check-false (should-overtake? the-lorry 5 road))
+   (check-false (should-overtake? the-lorry road 5))
    ; jag cannot overtake the lorry because of the skoda
-   (check-false (can-overtake? the-jag 7 road))
+   (check-false (can-overtake? the-jag road 7))
    ; astra is free to overtake the mini
-   (check-true (can-overtake? the-astra 7 road))
+   (check-true (can-overtake? the-astra road 7))
    ; skoda can overtake (though he doesn't want to)
-   (check-true (can-overtake? the-skoda 5 road)) 
+   (check-true (can-overtake? the-skoda road 5)) 
    ; lorry cannot overtake (and doesn't want to)
-   (check-false (can-overtake? the-lorry 5 road))
+   (check-false (can-overtake? the-lorry road 5))
    ; reliant cannot overtake
-   (check-false (can-overtake? the-reliant 4 road))
+   (check-false (can-overtake? the-reliant road 4))
    ; mclaren cannot overtake
-   (check-false (can-overtake? the-mclaren 10 road))
+   (check-false (can-overtake? the-mclaren road 10))
    ))
 
 (test-case
@@ -74,11 +74,21 @@
                     '(mini 1 4) 
                     '(lorry 0 16) 
                     '(jag 0 4))])
+   ; if car is in outside line, should move in regardless
+   (check-true (should-move-in? (find-car 'mclaren road) road #t))
+   (check-true (should-move-in? (find-car 'mclaren road) road #f))
+   ; in middle lane, depends on tendency
+   (check-true (should-move-in? (find-car 'mini road) road #t))
+   (check-false (should-move-in? (find-car 'skoda road) road #f))
+   ; if car is in inside lane, should not move in regardless
+   (check-false (should-move-in? (find-car 'jag road) road #t))
+   (check-false (should-move-in? (find-car 'lorry road) road #f))
+   ; jag and lorry should
    ; can move in: astra, skoda
    (for-each
     check-true 
     (map (lambda (x) 
-           (can-move-in? x speed road)) 
+           (can-move-in? x road speed)) 
          (filter 
           (lambda (x) 
             (or 
@@ -89,12 +99,10 @@
    (for-each
     check-false 
     (map (lambda (x) 
-           (can-move-in? x speed road)) 
+           (can-move-in? x road speed)) 
          (filter 
           (lambda (x) 
             (and 
              (not (eq? 'astra (first x))) 
              (not (eq? 'skoda (first x))))) 
-          road)))
-   
-   ))
+          road)))))

@@ -27,7 +27,7 @@ The user adds cars by type, e.g.:
 
 Motorway:
 
-The motorway is three lanes wide and several car-lengths long. It is represented as ASCII lines and spaces. The user interacts with the motorway by pressing 'go'.
+The motorway is three lanes wide and several car-lengths long. It is represented as ASCII lines and spaces. The user interacts with the motorway by pressing 'go'. The user can then watch until cars crash. This may be just as fascinating as watching clothes in the washing machine.
 
 
 TECHNICAL SPEC
@@ -59,3 +59,4 @@ e.g.
 
 
 
+[KEYWORDS: racket, functional, simulation]

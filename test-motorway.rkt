@@ -73,7 +73,6 @@
    ; cars all advanced
    (for-each (lambda (x y) (check-true (< (third x) (third y)))) road updated-road)))
 
-
 (test-case 
  "Just damn try it"
  (define car-list (list (make-car 'audi 0 1 #f)
@@ -91,8 +90,22 @@
      (display-road road)
      (road-iter (- count 1) car-list (update-road car-list road))))
  
- 
  (road-iter 3 car-list road))
 
+(test-case
+ "Collisions should be detected"
+ (let ([road-before (list '(skoda 1 60) '(mini 0 59) '(lorry 0 35) '(jag 0 2) '(astra 1 2))]
+       [road-after (list '(skoda 1 61) '(mini 0 64) '(lorry 0 70) '(jag 0 10) '(astra 1 10))])
+   ; a collision has occurred if...
+   ; one car runs into the back of another (lorry into mini)
+   (check-true (collision-occurred? road-before road-after)))
+ (let ([road-before (list '(skoda 1 60) '(mini 0 59) '(lorry 0 35) '(jag 0 2) '(astra 1 2))]
+       [road-after (list '(skoda 1 61) '(mini 0 64) '(lorry 0 50) '(jag 1 10) '(astra 1 10))])
+   ; a car moves sideways into another (jag into astra)
+   (check-true (collision-occurred? road-before road-after)))
+ (let ([road-before (list '(skoda 1 60) '(mini 0 59) '(lorry 0 35) '(jag 0 2) '(astra 1 2))]
+       [road-after (list '(skoda 1 61) '(mini 0 64) '(lorry 0 36) '(jag 0 10) '(astra 1 10))])
+   ; no collision
+   (check-false (collision-occurred? road-before road-after))))
 
 

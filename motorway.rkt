@@ -5,7 +5,8 @@
 
 (provide make-road
          update-road
-         display-road)
+         display-road
+         collision-occurred?)
 
 ; call each car in car-list to get its id
 ; assign positions
@@ -13,7 +14,7 @@
   (let ([road-size 20]
         [ids (map (lambda (x) (first (x '()))) car-list)])
     (define (random-pos new-road)
-      (let ([new-pos (list (random 3) (random (/ road-size 2)))])
+      (let ([new-pos (list (- (random 4) 1) (random (/ road-size 2)))])
         (if [not (member new-pos (map rest new-road))]
             new-pos
             (random-pos new-road))))
@@ -51,3 +52,6 @@
           [z (third text)])
       (printf "|\t~a\t|\t~a\t|\t~a\t|\n" x y z))))
 
+; check for a collision
+(define (collision-occurred? road-before road-after)
+  'banana)
